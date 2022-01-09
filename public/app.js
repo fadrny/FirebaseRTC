@@ -12,7 +12,14 @@ const configuration = {
   iceCandidatePoolSize: 10,
 };
 
-let peerConnection = null;
+let peerConnection = null; 
+
+//data
+let dataChannel = null;
+
+const messageBox = document.querySelector('#messageBox');
+const sendButton = document.querySelector('#sendButton');
+
 let localStream = null;
 let remoteStream = null;
 let roomDialog = null;
@@ -35,8 +42,31 @@ async function createRoom() {
   console.log('Create PeerConnection with configuration: ', configuration);
   peerConnection = new RTCPeerConnection(configuration);
 
-  registerPeerConnectionListeners();
+  dataChannel = peerConnection.createDataChannel('datachannel');
+  peerConnection.addEventListener("datachannel", ev => {
+    receiveChannel = ev.channel;
+    receiveChannel.onmessage = (event) => {
+      const message = event.data;
+      console.log(message + '\n');
+    };
+    receiveChannel.onopen = () => {
+      messageBox.disabled = false;
+      messageBox.focus();
+      sendButton.disabled = false;
+    };
+    receiveChannel.onclose = () => {
+      messageBox.disabled = false;
+      sendButton.disabled = false;
+    };
+  }, false);
 
+  sendButton.addEventListener('click', event => {
+    console.log(messageBox.value)
+    const message = messageBox.value;
+    dataChannel.send(message);
+  });
+
+  registerPeerConnectionListeners();
   // Add code for creating a room here
   
   // Code for creating room above
@@ -47,6 +77,8 @@ async function createRoom() {
 
   // Code for collecting ICE candidates below
   const callerCandidatesCollection = roomRef.collection('callerCandidates');
+
+
 
   peerConnection.addEventListener('icecandidate', event => {
     if (!event.candidate) {
@@ -106,6 +138,34 @@ async function createRoom() {
     });
   });
   // Listen for remote ICE candidates above
+
+
+  //datachannel open and close
+}
+
+function setupDataChannel(){
+
+  dataChannel.addEventListener('open', event => {
+    messageBox.disabled = false;
+    messageBox.focus();
+    sendButton.disabled = false;
+  });
+
+  dataChannel.addEventListener('close', event => {
+    messageBox.disabled = false;
+    sendButton.disabled = false;
+  });
+
+  sendButton.addEventListener('click', event => {
+    console.log(messageBox.value)
+    const message = messageBox.value;
+    dataChannel.send(message);
+  });
+
+  dataChannel.addEventListener('message', event => {
+    const message = event.data;
+    console.log(message + '\n');
+  });
 }
 
 function joinRoom() {
@@ -135,6 +195,30 @@ async function joinRoomById(roomId) {
     registerPeerConnectionListeners();
     localStream.getTracks().forEach(track => {
       peerConnection.addTrack(track, localStream);
+    });
+
+    dataChannel = peerConnection.createDataChannel('datachannel');
+    peerConnection.addEventListener("datachannel", ev => {
+      receiveChannel = ev.channel;
+      receiveChannel.onmessage = (event) => {
+        const message = event.data;
+        console.log(message + '\n');
+      };
+      receiveChannel.onopen = () => {
+        messageBox.disabled = false;
+        messageBox.focus();
+        sendButton.disabled = false;
+      };
+      receiveChannel.onclose = () => {
+        messageBox.disabled = false;
+        sendButton.disabled = false;
+      };
+    }, false);
+
+    sendButton.addEventListener('click', event => {
+      console.log(messageBox.value)
+      const message = messageBox.value;
+      dataChannel.send(message);
     });
 
     // Code for collecting ICE candidates below
