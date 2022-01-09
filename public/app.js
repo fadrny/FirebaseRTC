@@ -26,7 +26,6 @@ let roomDialog = null;
 let roomId = null;
 
 function init() {
-  document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
   document.querySelector('#hangupBtn').addEventListener('click', hangUp);
   document.querySelector('#createBtn').addEventListener('click', createRoom);
   document.querySelector('#joinBtn').addEventListener('click', joinRoom);
@@ -70,10 +69,6 @@ async function createRoom() {
   // Add code for creating a room here
   
   // Code for creating room above
-  
-  localStream.getTracks().forEach(track => {
-    peerConnection.addTrack(track, localStream);
-  });
 
   // Code for collecting ICE candidates below
   const callerCandidatesCollection = roomRef.collection('callerCandidates');
@@ -106,15 +101,7 @@ async function createRoom() {
   console.log(`New room created with SDP offer. Room ID: ${roomRef.id}`);
   document.querySelector(
       '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
-  // Code for creating a room above
-
-  peerConnection.addEventListener('track', event => {
-    console.log('Got remote track:', event.streams[0]);
-    event.streams[0].getTracks().forEach(track => {
-      console.log('Add a track to the remoteStream:', track);
-      remoteStream.addTrack(track);
-    });
-  });
+  // Code for creating a room above;
 
   // Listening for remote session description below
   roomRef.onSnapshot(async snapshot => {
@@ -143,31 +130,6 @@ async function createRoom() {
   //datachannel open and close
 }
 
-function setupDataChannel(){
-
-  dataChannel.addEventListener('open', event => {
-    messageBox.disabled = false;
-    messageBox.focus();
-    sendButton.disabled = false;
-  });
-
-  dataChannel.addEventListener('close', event => {
-    messageBox.disabled = false;
-    sendButton.disabled = false;
-  });
-
-  sendButton.addEventListener('click', event => {
-    console.log(messageBox.value)
-    const message = messageBox.value;
-    dataChannel.send(message);
-  });
-
-  dataChannel.addEventListener('message', event => {
-    const message = event.data;
-    console.log(message + '\n');
-  });
-}
-
 function joinRoom() {
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = true;
@@ -193,9 +155,7 @@ async function joinRoomById(roomId) {
     console.log('Create PeerConnection with configuration: ', configuration);
     peerConnection = new RTCPeerConnection(configuration);
     registerPeerConnectionListeners();
-    localStream.getTracks().forEach(track => {
-      peerConnection.addTrack(track, localStream);
-    });
+    
 
     dataChannel = peerConnection.createDataChannel('datachannel');
     peerConnection.addEventListener("datachannel", ev => {
@@ -233,13 +193,6 @@ async function joinRoomById(roomId) {
     });
     // Code for collecting ICE candidates above
 
-    peerConnection.addEventListener('track', event => {
-      console.log('Got remote track:', event.streams[0]);
-      event.streams[0].getTracks().forEach(track => {
-        console.log('Add a track to the remoteStream:', track);
-        remoteStream.addTrack(track);
-      });
-    });
 
     // Code for creating SDP answer below
     const offer = roomSnapshot.data().offer;
@@ -270,21 +223,6 @@ async function joinRoomById(roomId) {
     });
     // Listening for remote ICE candidates above
   }
-}
-
-async function openUserMedia(e) {
-  const stream = await navigator.mediaDevices.getUserMedia(
-      {video: true, audio: true});
-  document.querySelector('#localVideo').srcObject = stream;
-  localStream = stream;
-  remoteStream = new MediaStream();
-  document.querySelector('#remoteVideo').srcObject = remoteStream;
-
-  console.log('Stream:', document.querySelector('#localVideo').srcObject);
-  document.querySelector('#cameraBtn').disabled = true;
-  document.querySelector('#joinBtn').disabled = false;
-  document.querySelector('#createBtn').disabled = false;
-  document.querySelector('#hangupBtn').disabled = false;
 }
 
 async function hangUp(e) {

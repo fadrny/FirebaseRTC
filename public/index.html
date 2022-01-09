@@ -18,24 +18,20 @@
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
-<h1>Welcome to FirebaseRTC!</h1>
 <div id="buttons">
-    <button class="mdc-button mdc-button--raised" id="cameraBtn">
-        <i class="material-icons mdc-button__icon" aria-hidden="true">perm_camera_mic</i>
-        <span class="mdc-button__label">Open camera & microphone</span>
-    </button>
-    <button class="mdc-button mdc-button--raised" disabled id="createBtn">
+    <button class="mdc-button mdc-button--raised"  id="createBtn">
         <i class="material-icons mdc-button__icon" aria-hidden="true">group_add</i>
         <span class="mdc-button__label">Create room</span>
     </button>
-    <button class="mdc-button mdc-button--raised" disabled id="joinBtn">
+    <button class="mdc-button mdc-button--raised"  id="joinBtn">
         <i class="material-icons mdc-button__icon" aria-hidden="true">group</i>
         <span class="mdc-button__label">Join room</span>
     </button>
-    <button class="mdc-button mdc-button--raised" disabled id="hangupBtn">
+    <button class="mdc-button mdc-button--raised"  id="hangupBtn">
         <i class="material-icons mdc-button__icon" aria-hidden="true">close</i>
         <span class="mdc-button__label">Hangup</span>
     </button>
+    <br><br><br>
     <textarea id="messageBox" disabled></textarea>
     <button class="mdc-button mdc-button--raised" disabled id="sendButton">
         <span class="mdc-button__label">send</span>
@@ -43,10 +39,6 @@
 </div>
 <div>
     <span id="currentRoom"></span>
-</div>
-<div id="videos">
-    <video id="localVideo" muted autoplay playsinline></video>
-    <video id="remoteVideo" autoplay playsinline></video>
 </div>
 <div class="mdc-dialog"
      id="room-dialog"
